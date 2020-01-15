@@ -1,10 +1,10 @@
 ---
-title: "Tutorial: tslrt - package (Treatment Switching LogRank test)"
+title: "Tutorial: tslrt - package (Treatment Switching LogRank Test)"
 author: "Alexander Bore"
 date: "`r Sys.Date()`"
 output: rmarkdown::html_vignette
 vignette: >
-  %\VignetteIndexEntry{Tutorial: tslrt - package (Treatment Switching LogRank test)}
+  %\VignetteIndexEntry{Tutorial: tslrt - package (Treatment Switching LogRank Test)}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---
@@ -16,15 +16,15 @@ knitr::opts_chunk$set(echo = TRUE)
 # Installation
 
 The 'tslrt' package is available on GitHub and can be downloaded and installed by using the 'devtools' package
+hgcfghh
 
-AAAAAAAAAAAAAAAAAAAAAAAAA
 
 
 ```{r install_package, message = FALSE, warning = FALSE}
 
 #install.packages("devtools")
 library(devtools)
-#install_github("borealexander/tslrt")
+install_github("borealexander/tslrt")
 library(tslrt)
 
 ```
@@ -47,6 +47,8 @@ library(dplyr)
 # Example to simulate data and use tslrt
 
 For now it exists 2 ways to simulate data with the 'tslrt' package. The first is to simulate the control and experimental arm as exponential distribution, but that at a specific delay time a proportion of patients in control switches to the experimental treatment. The other way the control and experimental arms are still exponentially distributed, but the control arm now has a probability that they switch arm after progression, where the distribution of progressions are exponential.
+
+## Example with delay
 
 ```{r example_1}
 
@@ -187,10 +189,17 @@ calculate_zs(fh_weights)
 
 ```
 
+## Example with exponential progression switching
+
+# Use tslrt on real data
+
+To use the 'tslrt' package on real data it is needed a data set that contains time for event, an indicator for event of censoring and group (either "control" or "experimental"), and a hazard ratio function depending on time for calculating the weights.
 
 
+```{r create_example_data, echo = FALSE}
 
 
+```
 
 
 
