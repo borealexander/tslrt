@@ -1,0 +1,17 @@
+Package: tslrt
+Type: Package
+Title: Function for treatment switching logrank test
+Version: 0.1.0
+Author: Alexander Bore
+Maintainer: Alexander Bore <alexander.bore@astrazeneca.com>
+Description: Functions for the implementation of treatment switching logrank test
+License: GPL-3
+Encoding: UTF-8
+LazyData: true
+RoxygenNote: 6.0.1
+Imports: data.table,
+  tidyr,
+  dplyr
+Suggests: rmarkdown,
+  knitr
+VignetteBuilder: knitr
