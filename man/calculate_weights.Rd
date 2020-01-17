@@ -2,7 +2,7 @@
 % Please edit documentation in R/calculate_weights.R
 \name{calculate_weights}
 \alias{calculate_weights}
-\title{Function for calculating weights for logrank test HHHHHHH}
+\title{Function for calculating weights for logrank test}
 \usage{
 calculate_weights(risk_table, method = "logrank", hr_fun = NULL, rho = 0,
   gamma = 0)

@@ -5,7 +5,7 @@ knitr::opts_chunk$set(echo = TRUE)
 
 #install.packages("devtools")
 library(devtools)
-#install_github("borealexander/tslrt")
+install_github("borealexander/tslrt")
 library(tslrt)
 
 
@@ -125,6 +125,7 @@ ggplot(weight_dt, aes(x = t, y = w, color = Test)) +
 
 
 ## ----calculate_Z_example_1-----------------------------------------------
+
 # Calculate Z-scores
 
 # Logrank
@@ -135,5 +136,79 @@ calculate_zs(delay_weights)
 
 # Flemming-Harrington
 calculate_zs(fh_weights)
+
+
+## ----create_example_data, echo = FALSE-----------------------------------
+
+example_data <- data.table(OS_time = rexp(100, rate = 0.1),
+                           event_indicator = sample(c(FALSE, TRUE), 100, replace = TRUE),
+                           arm = sample(c("placebo", "active"), 100, replace = TRUE))
+
+
+## ----check_data_example_data---------------------------------------------
+
+head(example_data)
+
+
+## ----variable_names_example_data-----------------------------------------
+
+arms <- ifelse(example_data$arm == "placebo", 1,2)
+
+ex_dt <- data.table(time = example_data$OS_time,
+                    event = example_data$event_indicator,
+                    group = ifelse(example_data$arm == "placebo", "control", "experimental"))
+
+ 
+
+
+## ----plot_example_data, fig.width = 7, fig.height = 5--------------------
+
+# Plot data
+fit <- survfit( Surv(time, event) ~ group, data = ex_dt)
+plot(fit, col = c("black", "blue"), mark.time = TRUE, pch = c(1, 2))
+legend('topright', legend = c("Control", "Experimental"),
+       col = c("black", "blue"), lty = c(1, 1), pch = c(1, 2))
+
+
+## ----HR_example_data-----------------------------------------------------
+
+HR_data <- function(t){HR <- pmin(0.5 + 0.01*t, .99) }
+
+
+## ----test_example_data, fig.width = 7, fig.height = 5--------------------
+
+# risk table
+risk_table <- get_risk_table(ex_dt)
+
+# calculate weights
+logrank_weights <- calculate_weights(risk_table, method = "logrank")
+delay_weights <- calculate_weights(risk_table, method = "theta", hr_fun = HR_data)
+fh_weights <- calculate_weights(risk_table, method = "fh", rho = 1, gamma = 0)
+
+# data table for plotting the weights
+weight_dt <- data.table(t  = c(logrank_weights$t, delay_weights$t, fh_weights$t),
+                        w = c(logrank_weights$w, delay_weights$w, fh_weights$w),
+                        Test = rep(c('logrank', 'new weights', 'fh(1,0)'),
+                                   c(length(logrank_weights$w),length(delay_weights$w),length(fh_weights$w))))
+
+
+ggplot(weight_dt, aes(x = t, y = w, color = Test)) +
+  geom_line(size = 1.2) +
+  theme_bw() +
+  labs(x = "Time (months)", y = "w", title = "Comparison of weights for different tests") +
+  theme(text = element_text(size = 18),
+        panel.grid.minor = element_blank())
+
+# Calculate Z-scores
+
+# Logrank
+calculate_zs(logrank_weights)
+
+# New weights
+calculate_zs(delay_weights)
+
+# Flemming-Harrington
+calculate_zs(fh_weights)
+
 
 

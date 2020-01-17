@@ -65,8 +65,8 @@ sim_crossover_delay <- function(n_c = 100,
   t_e <- rexp(n = n_e, rate = log(2)/median_e)
 
   # "calender" times for events
-  cal_t_c = rec_t_c + t_c
-  cal_t_e = rec_t_e + t_e
+  cal_t_c <- rec_t_c + t_c
+  cal_t_e <- rec_t_e + t_e
 
   # calender time for when our final event happens
   max_cal_t <- sort(c(cal_t_c, cal_t_e))[end_event]

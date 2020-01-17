@@ -1,4 +1,4 @@
-#' Function for calculating weights for logrank test HHHHHHH
+#' Function for calculating weights for logrank test
 #'
 #' Calculates weights for treatment switching logrank test
 #' @param risk_table Risk table from the function \code{}
