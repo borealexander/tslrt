@@ -113,6 +113,18 @@ MC_delay_crossover <- function(n_c = 100,
     scale_colour_manual(values = c("black", "grey80")) +
     ylim(0,1)
 
-  return(list(result = result, plot = p))
+
+  p.eff <- ggplot(aes(x = 100*p_switched, y = efficiency), data = result) +
+    geom_line(size = 1.5) +
+    scale_x_continuous("% of switchers") +
+    labs(y = "Efficiency", color = "") +
+    theme_bw() +
+    theme(text = element_text(size = 12),
+          legend.position = c(0.85, 0.85),
+          legend.title = element_blank(),
+          panel.grid = element_blank()) +
+    scale_colour_manual(values = c("black"))
+
+  return(list(result = result, plot = p, plot.eff = p.eff))
 
 }

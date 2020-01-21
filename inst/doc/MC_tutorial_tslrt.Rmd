@@ -100,7 +100,7 @@ res_delay$result
 
 ```
 
-and as a graph
+and as a graph for the power
 
 ```{r MC_delay_graph, fig.width = 7, fig.height = 5}
 
@@ -108,6 +108,13 @@ res_delay$plot
 
 ```
 
+and the efficiency
+
+```{r MC_delay_graph_eff, fig.width = 7, fig.height = 5}
+
+res_delay$plot.eff
+
+```
 
 ## Switching after progression
 
@@ -171,7 +178,7 @@ res_prog$result
 
 ```
 
-and as a graph
+and as a graph for the power
 
 ```{r MC_prog_graph, fig.width = 7, fig.height = 5}
 
@@ -179,6 +186,13 @@ res_prog$plot
 
 ```
 
+and the efficiency
+
+```{r MC_prog_graph_eff, fig.width = 7, fig.height = 5}
+
+res_prog$plot.eff
+
+```
 
 # Notes
 

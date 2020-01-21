@@ -75,6 +75,11 @@ res_delay$result
 res_delay$plot
 
 
+## ----MC_delay_graph_eff, fig.width = 7, fig.height = 5-------------------
+
+res_delay$plot.eff
+
+
 ## ----parameter_setup_prog------------------------------------------------
 
 # number of patients in each arm
@@ -129,5 +134,10 @@ res_prog$result
 ## ----MC_prog_graph, fig.width = 7, fig.height = 5------------------------
 
 res_prog$plot
+
+
+## ----MC_prog_graph_eff, fig.width = 7, fig.height = 5--------------------
+
+res_prog$plot.eff
 
 
