@@ -31,7 +31,8 @@ MC_exp_prog_crossover <- function(n_c = 100,
   result <- data.table(p = p,
                        p_switched = rep(0, length(p)),
                        power_logrank = rep(0, length(p)),
-                       power_weighted = rep(0, length(p)))
+                       power_weighted = rep(0, length(p)),
+                       efficiency = rep(0, length(p)))
 
   for (i in 1:length(p)) {
 
@@ -80,13 +81,14 @@ MC_exp_prog_crossover <- function(n_c = 100,
 
     # proportion of patients that have switched
     #switched <- lapply(sim_data, proportion_switched)
-    switched <- data.table(t(as.data.table(lapply(sim_data, proportion_switched))))
+    switched <- data.table(t(as.data.table(lapply(sim_data, prop_switch))))
     result$p_switched[i] <- as.numeric(lapply(switched, mean))
 
     # calculate power
-    result$power_logrank[i] <- mean(logrank_Z > qnorm(0.975))
-    result$power_weighted[i] <- mean(weighted_logrank_Z > qnorm(0.975))
+    result$power_logrank[i] <- mean(logrank_Z > qnorm(1-alpha))
+    result$power_weighted[i] <- mean(weighted_logrank_Z > qnorm(1-alpha))
 
+    result$efficiency[i] <- (qnorm(1-alpha) + qnorm(mean(data.table(weighted_logrank_Z) > qnorm(1-alpha)))) / (qnorm(1-alpha) + qnorm(mean(data.table(logrank_Z) > qnorm(1-alpha))))
 
   }
 
