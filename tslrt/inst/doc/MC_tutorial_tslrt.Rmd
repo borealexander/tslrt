@@ -1,0 +1,199 @@
+---
+title: "Tutorial: Monte Carlo simulation with tslrt"
+author: "Alexander Bore"
+date: "`r Sys.Date()`"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Tutorial: Monte Carlo simulation with treatment switching}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r setup, include=FALSE}
+
+knitr::opts_chunk$set(echo = TRUE)
+
+```
+
+
+```{r packages, echo = FALSE, message = FALSE, warning = FALSE}
+
+library(data.table)
+library(survival)
+library(ggplot2)
+library(dplyr)
+library(tslrt)
+library(knitr)
+library(kableExtra)
+
+
+```
+
+
+# Introduction
+
+This tutorial will show how to use the 'tslrt' package for Monte Carlo simulations. For this we have 2 different models of treatment switching; the first where treatment switching occurs after a specified delay time, and the second where treatment switching occurs after progression.
+
+## Switching after delay time
+
+We start by setting the parameters used for the simulation
+
+```{r parameter_setup_delay}
+
+# number of patients in each arm
+n_c <- 100
+n_e <- 100
+
+# median in control before switch
+median_c_1 <- 10
+# median in control after switch
+median_c_2 <- 15
+# median in experimental
+median_e <- 15
+
+# delay time where switching occurs
+delay <- 3
+
+# number of events to stop (event-driven study)
+end_event <- 150
+
+# recruitment period
+rec_period <- 12
+# recruitment parameter (assuming recruitment follows a powermodel)
+rec_power <- 1
+
+# different proportion of patients that switches
+p <- c(0, 0.25, 0.5, 0.75, 1)
+
+# significance level (one-sided)
+alpha <- 0.025
+
+# number of simulations
+M <- 100
+
+```
+
+Now to simulate the results we use the function
+
+```{r MC_delay}
+
+res_delay <- MC_delay_crossover(n_c = n_c,
+                                n_e = n_e,
+                                median_c_1 = median_c_1,
+                                median_c_2 = median_c_2,
+                                median_e = median_e,
+                                delay = delay,
+                                end_event = end_event,
+                                rec_period = rec_period,
+                                rec_power = rec_power,
+                                p = p, 
+                                alpha = alpha,
+                                M = M)
+
+```
+
+The result can be viewed both as a table
+
+```{r MC_delay_table}
+
+res_delay$result
+
+```
+
+and as a graph for the power
+
+```{r MC_delay_graph, fig.width = 7, fig.height = 5}
+
+res_delay$plot
+
+```
+
+and the efficiency
+
+```{r MC_delay_graph_eff, fig.width = 7, fig.height = 5}
+
+res_delay$plot.eff
+
+```
+
+## Switching after progression
+
+For the model where we have treatment switching after progression we start by setting up the parameters
+
+```{r parameter_setup_prog}
+
+# number of patients in each arm
+n_c <- 100
+n_e <- 100
+
+# median in control before switch
+median_c <- 10
+# median in experimental
+median_e <- 15
+# median for progressions
+median_prog <- 3
+
+# number of events to stop (event-driven study)
+end_event <- 150
+
+# recruitment period
+rec_period <- 12
+# recruitment parameter (assuming recruitment follows a powermodel)
+rec_power <- 1
+
+# different proportion of patients that switches
+p <- c(0, 0.25, 0.5, 0.75, 1)
+
+# significance level (one-sided)
+alpha <- 0.025
+
+# number of simulations
+M <- 100
+
+```
+
+To run the simulations we use the function
+
+```{r MC_prog}
+
+res_prog <- MC_exp_prog_crossover(n_c = n_c,
+                                  n_e = n_e,
+                                  median_c = median_c,
+                                  median_e = median_e,
+                                  median_prog = median_prog,
+                                  end_event = end_event,
+                                  rec_period = rec_period,
+                                  rec_power = rec_power,
+                                  p = p, 
+                                  alpha = alpha,
+                                  M = M)
+
+```
+
+We can see the results in a table
+
+```{r MC_prog_table}
+
+res_prog$result
+
+```
+
+and as a graph for the power
+
+```{r MC_prog_graph, fig.width = 7, fig.height = 5}
+
+res_prog$plot
+
+```
+
+and the efficiency
+
+```{r MC_prog_graph_eff, fig.width = 7, fig.height = 5}
+
+res_prog$plot.eff
+
+```
+
+# Notes
+
+Note that the results are only based on `r sprintf("%.0f", M)` simulations and for a real evalution the number of simulations would need to be much higher. This is just meant as a tutorial on showing how to use the package, not to give clear results.
