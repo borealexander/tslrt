@@ -88,7 +88,8 @@ MC_delay_crossover <- function(n_c = 100,
     result$power_logrank[i] <- mean(logrank_Z > qnorm(1-alpha))
     result$power_weighted[i] <- mean(weighted_logrank_Z > qnorm(1-alpha))
 
-    result$efficiency[i] <- (qnorm(1-alpha) + qnorm(mean(data.table(weighted_logrank_Z) > qnorm(1-alpha)))) / (qnorm(1-alpha) + qnorm(mean(data.table(logrank_Z) > qnorm(1-alpha))))
+    result$efficiency[i] <- ((qnorm(1-alpha) + qnorm(result$power_weighted[i])) /
+      (qnorm(1-alpha) + qnorm(result$power_logrank[i])))^2
 
 
   }
