@@ -2,7 +2,9 @@
 
 export(HR_delay_switch)
 export(MC_delay_crossover)
+export(MC_delay_crossover_median)
 export(MC_exp_prog_crossover)
+export(MC_exp_prog_crossover_median)
 export(calculate_weights)
 export(calculate_zs)
 export(get_risk_table)

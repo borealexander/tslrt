@@ -76,7 +76,7 @@ MC_exp_prog_crossover <- function(n_c = 100,
     logrank_Z <- lapply(logrank_rt, calculate_zs)
 
     # calculate with proposed weight from article
-    weighted_logrank_rt <- lapply(risk_table, calculate_weights, method = "hr_weight", hr_fun = HR_switch)
+    weighted_logrank_rt <- lapply(risk_table, calculate_weights, method = "theta", hr_fun = HR_switch)
     weighted_logrank_Z <- lapply(weighted_logrank_rt, calculate_zs)
 
     # proportion of patients that have switched
