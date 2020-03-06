@@ -56,7 +56,7 @@ HR_delay_switch <- function(lambda_c_1, lambda_c_2, lambda_e, delay, p){
 numerical_prog_switch_exp <- function(lambda_c, lambda_e, lambda_p, p, max_t = 100, delta_t = 0.01){
 
   # time points
-  t <- seq(0, 100, by = delta_t)
+  t <- seq(0, max_t, by = delta_t)
 
   # Survival functions
   S_prog_switch <- rep(0, length(t))

@@ -34,11 +34,16 @@ MC_delay_crossover_median <- function(n_c = 100,
 
   result <- data.table(median_c = median_c_1,
                        p_switched = rep(0, length(median_c_1)),
+                       Z_logrank = rep(0, length(median_c_1)),
+                       Z_weighted = rep(0, length(median_c_1)),
+                       Z_FH = rep(0, length(median_c_1)),
                        power_logrank = rep(0, length(median_c_1)),
                        power_weighted = rep(0, length(median_c_1)),
-                       power_fh = rep(0, length(median_c_1),
-                                      efficiency_MWLRLR = rep(0, length(median_c_1)),
-                                      efficiency_MWLRFH = rep(0, length(median_c_1))))
+                       power_fh = rep(0, length(median_c_1)),
+                       rel_eff_MWLRLR = rep(0, length(median_c_1)),
+                       rel_eff_MWLRFH = rep(0, length(median_c_1)),
+                       eff_MWLRLR = rep(0, length(median_c_1)),
+                       eff_MWLRFH = rep(0, length(median_c_1)))
 
   for (i in 1:length(median_c_1)) {
 
@@ -73,14 +78,17 @@ MC_delay_crossover_median <- function(n_c = 100,
     # calculate standard logrank
     logrank_rt <- lapply(risk_table, calculate_weights, method = "logrank")
     logrank_Z <- lapply(logrank_rt, calculate_zs)
+    result$Z_logrank[i] <- mean(unlist(logrank_Z))
 
     # calculate with proposed weight from article
     weighted_logrank_rt <- lapply(risk_table, calculate_weights, method = "theta", hr_fun = HR_switch)
     weighted_logrank_Z <- lapply(weighted_logrank_rt, calculate_zs)
+    result$Z_weighted[i] <- mean(unlist(weighted_logrank_Z))
 
     #calculate with FH class of weights
     fh_logrank_rt = lapply(risk_table, calculate_weights, method = "fh", rho = 1, gamma = 0)
     fh_logrank_Z = lapply(fh_logrank_rt, calculate_zs)
+    result$Z_FH[i] <- mean(unlist(fh_logrank_Z))
 
     # proportion of patients that have switched
     #switched <- lapply(sim_data, proportion_switched)
@@ -92,13 +100,19 @@ MC_delay_crossover_median <- function(n_c = 100,
     result$power_weighted[i] <- mean(weighted_logrank_Z > qnorm(1-alpha))
     result$power_fh[i] <- mean(fh_logrank_Z > qnorm(1-alpha))
 
-    result$efficiency_MWLRLR[i] <- ((qnorm(1-alpha) + qnorm(result$power_weighted[i])) /
-                                      (qnorm(1-alpha) + qnorm(result$power_logrank[i])))^2
-
-    result$efficiency_MWLRFH[i] <- ((qnorm(1-alpha) + qnorm(result$power_weighted[i])) /
-                                      (qnorm(1-alpha) + qnorm(result$power_fh[i])))^2
-
   }
+
+  #efficiency
+  result$eff_MWLRLR <- (result$Z_weighted/result$Z_logrank)^2
+
+  result$eff_MWLRFH <- (result$Z_weighted/result$Z_FH)^2
+
+  # relative efficiency
+  result$rel_eff_MWLRLR <- ((qnorm(1-alpha) + qnorm(result$power_weighted)) /
+                              (qnorm(1-alpha) + qnorm(result$power_logrank)))^2
+
+  result$rel_eff_MWLRFH <- ((qnorm(1-alpha) + qnorm(result$power_weighted)) /
+                              (qnorm(1-alpha) + qnorm(result$power_fh)))^2
 
   # data table for plotting
   n <- length(result$median_c)
@@ -120,7 +134,7 @@ MC_delay_crossover_median <- function(n_c = 100,
     annotate("text", x = 9, y = 71, label = paste0("P(switching) = ", p))
 
   plot_dt_eff <- data.table(median_c = rep(result$median_c, 2),
-                            efficiency = c(result$efficiency_MWLRLR, result$efficiency_MWLRFH),
+                            efficiency = c(result$eff_MWLRLR, result$eff_MWLRFH),
                             test = rep(c("mWLR / LR", "mWLR / WLR-FH"), c(n, n)))
 
   p.eff <- ggplot(aes(x = median_c, y = 100*efficiency, color = test), data = plot_dt_eff) +

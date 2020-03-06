@@ -30,9 +30,17 @@ MC_exp_prog_crossover <- function(n_c = 100,
 
   result <- data.table(p = p,
                        p_switched = rep(0, length(p)),
+                       Z_logrank = rep(0, length(p)),
+                       Z_weighted = rep(0, length(p)),
+                       Z_FH = rep(0, length(p)),
                        power_logrank = rep(0, length(p)),
                        power_weighted = rep(0, length(p)),
-                       efficiency = rep(0, length(p)))
+                       power_fh = rep(0, length(p)),
+                       rel_eff_MWLRLR = rep(0, length(p)),
+                       rel_eff_MWLRFH = rep(0, length(p)),
+                       eff_MWLRLR = rep(0, length(p)),
+                       eff_MWLRFH = rep(0, length(p)))
+
 
   for (i in 1:length(p)) {
 
@@ -74,10 +82,17 @@ MC_exp_prog_crossover <- function(n_c = 100,
     # calculate standard logrank
     logrank_rt <- lapply(risk_table, calculate_weights, method = "logrank")
     logrank_Z <- lapply(logrank_rt, calculate_zs)
+    result$Z_logrank[i] <- mean(unlist(logrank_Z))
 
     # calculate with proposed weight from article
     weighted_logrank_rt <- lapply(risk_table, calculate_weights, method = "theta", hr_fun = HR_switch)
     weighted_logrank_Z <- lapply(weighted_logrank_rt, calculate_zs)
+    result$Z_weighted[i] <- mean(unlist(weighted_logrank_Z))
+
+    #calculate with FH class of weights
+    fh_logrank_rt = lapply(risk_table, calculate_weights, method = "fh", rho = 1, gamma = 0)
+    fh_logrank_Z = lapply(fh_logrank_rt, calculate_zs)
+    result$Z_FH[i] <- mean(unlist(fh_logrank_Z))
 
     # proportion of patients that have switched
     #switched <- lapply(sim_data, proportion_switched)
@@ -87,20 +102,29 @@ MC_exp_prog_crossover <- function(n_c = 100,
     # calculate power
     result$power_logrank[i] <- mean(logrank_Z > qnorm(1-alpha))
     result$power_weighted[i] <- mean(weighted_logrank_Z > qnorm(1-alpha))
+    result$power_fh[i] <- mean(fh_logrank_Z > qnorm(1-alpha))
 
-    result$efficiency[i] <- ((qnorm(1-alpha) + qnorm(result$power_weighted[i])) /
-                               (qnorm(1-alpha) + qnorm(result$power_logrank[i])))^2
   }
+  #efficiency
+  result$eff_MWLRLR <- (result$Z_weighted/result$Z_logrank)^2
 
+  result$eff_MWLRFH <- (result$Z_weighted/result$Z_FH)^2
+
+  # relative efficiency
+  result$rel_eff_MWLRLR <- ((qnorm(1-alpha) + qnorm(result$power_weighted)) /
+                              (qnorm(1-alpha) + qnorm(result$power_logrank)))^2
+
+  result$rel_eff_MWLRFH <- ((qnorm(1-alpha) + qnorm(result$power_weighted)) /
+                              (qnorm(1-alpha) + qnorm(result$power_fh)))^2
   # data table for plotting
   n <- length(result$p)
-  plot_dt <- data.table(p = rep(result$p, 2),
-                        p_switched = rep(result$p_switched, 2),
-                        power = c(result$power_logrank, result$power_weighted),
-                        test = rep(c("Logrank", "Weighted"), c(n, n)))
+  plot_dt.power <- data.table(p = rep(result$p, 3),
+                              p_switched = rep(result$p_switched, 3),
+                              power = c(result$power_logrank, result$power_weighted, result$power_fh),
+                              test = rep(c("Logrank", "Weighted", "FH"), c(n, n, n)))
 
 
-  p <- ggplot(aes(x = 100*p_switched, y = power, color = test), data = plot_dt) +
+  p <- ggplot(aes(x = 100*p_switched, y = power, color = test), data = plot_dt.power) +
     geom_line(size = 1.5) +
     scale_x_continuous("% of switchers") +
     labs(y = "Power", color = "") +
@@ -109,10 +133,15 @@ MC_exp_prog_crossover <- function(n_c = 100,
           legend.position = c(0.85, 0.85),
           legend.title = element_blank(),
           panel.grid = element_blank()) +
-    scale_colour_manual(values = c("black", "grey80")) +
+    scale_colour_manual(values = c("black", "grey80", "grey40")) +
     ylim(0,1)
 
-  p.eff <- ggplot(aes(x = 100*p_switched, y = efficiency), data = result) +
+  plot_dt.eff <- data.table(p = rep(result$p, 2),
+                            p_switched = rep(result$p_switched, 2),
+                            efficiency = c(result$eff_MWLRLR, result$eff_MWLRFH),
+                            test = rep(c("MWLRLR", "MWLRFH"), c(n, n)))
+
+  p.eff <- ggplot(aes(x = 100*p_switched, y = efficiency, color = test), data = plot_dt.eff) +
     geom_line(size = 1.5) +
     scale_x_continuous("% of switchers") +
     labs(y = "Efficiency", color = "") +
@@ -121,8 +150,8 @@ MC_exp_prog_crossover <- function(n_c = 100,
           legend.position = c(0.85, 0.85),
           legend.title = element_blank(),
           panel.grid = element_blank()) +
-    scale_colour_manual(values = c("black"))
+    scale_colour_manual(values = c("black", "grey80"))
 
-  return(list(result = result, plot = p, plot.eff = p.eff))
+  return(list(result = result, plot.power = p, plot.eff = p.eff))
 
 }
