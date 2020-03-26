@@ -183,10 +183,10 @@ legend('topright', legend = c("Control", "Experimental"),
 t <- seq(1,50)
 
 # Hazard ratio
-HR_switch <- numerical_prog_switch_exp(lambda_c = log(2)/median_c,
-                                       lambda_e = log(2)/median_e,
-                                       lambda_p = log(2)/median_prog,
-                                       p = p_change)
+HR_switch <- exp_prog_switch_fun(lambda_c = log(2)/median_c,
+                                 lambda_e = log(2)/median_e,
+                                 lambda_p = log(2)/median_prog,
+                                 p = p_change)
 
 plot(t, HR_switch$HR(t), type = "l",
      xlab = "Time (months)", ylab = "HR")

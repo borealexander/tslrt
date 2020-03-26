@@ -64,10 +64,10 @@ MC_exp_prog_crossover <- function(n_c = 100,
     # HR function
     # change name ???
     # change to different parameters than in simulation ???
-    HR_switch <- numerical_prog_switch_exp(lambda_c = log(2)/median_c,
-                                           lambda_e = log(2)/median_e,
-                                           lambda_p = log(2)/median_prog,
-                                           p = p[i])$HR
+    HR_switch <- exp_prog_switch_fun(lambda_c = log(2)/median_c,
+                                     lambda_e = log(2)/median_e,
+                                     lambda_p = log(2)/median_prog,
+                                     p = p[i])$HR
 
 
 

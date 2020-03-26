@@ -102,3 +102,56 @@ numerical_prog_switch_exp <- function(lambda_c, lambda_e, lambda_p, p, max_t = 1
 
 
 }
+
+
+##############################################
+
+#' Creates survival and hazard ratio function for treatment switching with exponential model
+#'
+#' \code{exp_prog_switch_fun} numerically estimates the survival and HR functions in a treatment
+#' switching model with exponentially distributions
+#' @param lambda_c rate for control group
+#' @param lambda_e rate for experimental group
+#' @param lambda_p rate for progression in control group
+#' @param p proportion of patients that switches after progression
+#' @return a list containing functions for the survival curve and HR and hazard for control and proportion of switchers
+#'
+#' @export
+
+exp_prog_switch_fun <- function(lambda_c, lambda_e, lambda_p, p){
+
+  lambda_pfs <- lambda_c + lambda_p
+
+  # Survival function for control
+  S <- function(t){
+
+    S_np <- exp(-(lambda_c + lambda_p)*t)
+    S_ps <- p*lambda_p/(lambda_p + lambda_c - lambda_e) *(exp(-lambda_e*t) - exp(-(lambda_p+lambda_c)*t))
+    S_pns <- (1-p)*(exp(-lambda_c*t) - exp(-(lambda_p+lambda_c)*t))
+
+    S <- S_np + S_ps + S_pns
+    return(S)
+  }
+
+  # hazard function for control
+  h <- function(t){
+
+    v0 <- (1-p)*(lambda_pfs-lambda_e)*exp(-lambda_c*t)
+    v1 <- p*lambda_p*exp(-lambda_e*t)
+    v0p <- p*(lambda_c-lambda_e)*exp(-lambda_pfs*t)
+
+    h <- (v0*lambda_c + v1*lambda_e+v0p*lambda_pfs)/(v0+v1+v0p)
+
+    return(h)
+  }
+
+  # hR function
+  HR <- function(t){
+
+    HR <- lambda_e/h(t)
+    return(HR)
+  }
+
+  return(list(S = S, h = h, HR = HR))
+
+}
